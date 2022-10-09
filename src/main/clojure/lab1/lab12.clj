@@ -8,7 +8,7 @@
     (if (empty? elementsLoop)
       combinationsLoop
       (if (not= (first combination) (first elementsLoop))
-        (recur (rest elementsLoop) (cons (cons (first elementsLoop) combination) combinationsLoop))      ;true
+        (recur (rest elementsLoop) (cons (cons (first elementsLoop) combination) combinationsLoop))
         (recur (rest elementsLoop) combinationsLoop)
         )
       )
