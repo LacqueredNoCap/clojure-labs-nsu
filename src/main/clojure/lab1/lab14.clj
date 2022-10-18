@@ -5,7 +5,7 @@
 
 ; Функция добавляет элемент в начало комбинации и возвращает список
 (defn addElement [combination elements]
-  (letfn [(fltr [elem] (not= (first combination) elem))]
+  (letfn [(fltr [element] (not= (first combination) element))]
     (letfn [(addMap [filteredElements] (cons filteredElements combination))]
       (map addMap (filter fltr elements)))
     )
