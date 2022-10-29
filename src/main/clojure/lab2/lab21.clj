@@ -10,16 +10,11 @@
 
 ; Lab 2.1. Оптимизируйте функцию с помощью мемоизации
 
-; Длина шага
-(def step 1)
-
-; Тестовые функции
-(def line #(+ (* 2 %) 1))
-(def cube #(* % % %))
-(def shiftedHyperbola #(/ 1 (+ % 1)))
-
 ; Формулу численного интегрирования от a до b функции f(x) методом трапеций при постоянном шаге dx
 ; можно записать как ~ dx/2 * ( f(x0) + 2f(x1) + ... + 2f(xn-1) + f(xn) ), при x0 = a, xn = b
+
+; Длина шага
+(def step 1)
 
 ; Вычисление члена суммы
 (defn fxn [f x n]
@@ -48,14 +43,20 @@
 (def memoizeIntegrate (memoize integrate))
 
 ; Проверка
-(prn (time (memoizeIntegrate line 5))) ; = 30
+
+; Тестовые функции
+(def line #(+ (* 2 %) 1))
+(def cube #(* % % %))
+(def shiftedHyperbola #(/ 1 (+ % 1)))
+
 (prn (time (memoizeIntegrate line 5))) ; = 30
 (prn (time (integrate line 5))) ; = 30
+(prn (time (memoizeIntegrate line 5))) ; = 30
 
-(prn (time (memoizeIntegrate cube 4))) ; = 64
 (prn (time (memoizeIntegrate cube 4))) ; = 64
 (prn (time (integrate cube 4))) ; = 64
+(prn (time (memoizeIntegrate cube 4))) ; = 64
 
 (prn (time (memoizeIntegrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
-(prn (time (memoizeIntegrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
 (prn (time (integrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
+(prn (time (memoizeIntegrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
