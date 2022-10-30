@@ -28,14 +28,16 @@
 (def memoizeFxn (memoize fxn))
 
 ; Вычисление интеграла функции f от 0 до x методом трапеции с постоянным шагом step
-(defn integrate [f x]
-  (let [sum (->> (iterate #(+ % step) 0)
+(defn integrate [f]
+  (fn [x]
+    (let [sum (->> (iterate #(+ % step) 0.0)
                  (take-while #(<= % x))
-                 (map #(memoizeFxn f x %))
+                 (map #(fxn f x %))
                  (reduce +)
-                 )
+                   )
         ]
-    (#(* % (/ step 2.0)) sum)
+      (#(* % (/ step 2.0)) sum)
+      )
     )
   )
 
@@ -49,14 +51,14 @@
 (def cube #(* % % %))
 (def shiftedHyperbola #(/ 1 (+ % 1)))
 
-(prn (time (memoizeIntegrate line 5))) ; = 30
-(prn (time (integrate line 5))) ; = 30
-(prn (time (memoizeIntegrate line 5))) ; = 30
+(prn (time ((integrate line) 10))) ; = 110
+(prn (time ((memoizeIntegrate line) 10))) ; = 110
+(prn (time ((memoizeIntegrate line) 10))) ; = 110
 
-(prn (time (memoizeIntegrate cube 4))) ; = 64
-(prn (time (integrate cube 4))) ; = 64
-(prn (time (memoizeIntegrate cube 4))) ; = 64
+(prn (time ((integrate cube) 6))) ; ~ 324
+(prn (time ((memoizeIntegrate cube) 6))) ; ~ 324
+(prn (time ((memoizeIntegrate cube) 6))) ; ~ 324
 
-(prn (time (memoizeIntegrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
-(prn (time (integrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
-(prn (time (memoizeIntegrate shiftedHyperbola (Math/pow Math/E 5)))) ; = 5
+(prn (time ((integrate shiftedHyperbola) (Math/pow Math/E 5)))) ; ~ 5
+(prn (time ((memoizeIntegrate shiftedHyperbola) (Math/pow Math/E 5)))) ; ~ 5
+(prn (time ((memoizeIntegrate shiftedHyperbola) (Math/pow Math/E 5)))) ; ~ 5
