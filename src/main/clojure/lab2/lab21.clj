@@ -18,7 +18,7 @@
 
 ; Вычисление члена суммы
 (defn fxn [f x n]
-  (if (or (= n 0) (= (* step n) x))
+  (if (or (= n 0) (>= (* step n) x))
     (f (* n step))
     (* 2 (f (* n step)))
     )
@@ -30,13 +30,13 @@
 ; Вычисление интеграла функции f от 0 до x методом трапеции с постоянным шагом step
 (defn integrate [f]
   (fn [x]
-    (let [sum (->> (iterate #(+ % step) 0.0)
-                 (take-while #(<= % x))
-                 (map #(fxn f x %))
-                 (reduce +)
+    (let [sum (->> (iterate #(+ % step) 0)
+                   (take-while #(<= % x))
+                   (map #(memoizeFxn f x %))
+                   (reduce +)
                    )
-        ]
-      (#(* % (/ step 2.0)) sum)
+          ]
+      (* (/ step 2.0) sum)
       )
     )
   )
