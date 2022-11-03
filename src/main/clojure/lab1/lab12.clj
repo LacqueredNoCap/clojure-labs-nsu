@@ -4,28 +4,26 @@
 
 ; Функция добавляет элемент в начало комбинации и возвращает список.
 (defn addElement [combination elements]
-  ((fn [elementsLoop combinationsLoop]
+  (loop [combinationLoop combination elementsLoop elements combinationsLoop '()]
     (if (empty? elementsLoop)
       combinationsLoop
       (if (not= (first combination) (first elementsLoop))
-        (recur (rest elementsLoop) (cons (cons (first elementsLoop) combination) combinationsLoop))
-        (recur (rest elementsLoop) combinationsLoop)
+        (recur combinationLoop (rest elementsLoop) (cons (cons (first elementsLoop) combination) combinationsLoop))
+        (recur combinationLoop (rest elementsLoop) combinationsLoop)
         )
       )
-    ) elements '()
-   )
+    )
   )
 
 ; Функция возвращает список новых комбинаций,
 ; используя функцию addElement для всех элементов, а не для одного
 (defn nextCombination [combinations elements]
-  ((fn [combinationsLoop newCombinationsLoop]
-     (if (empty? combinationsLoop)
-       newCombinationsLoop
-       (recur (rest combinationsLoop) (concat newCombinationsLoop (addElement (first combinationsLoop) elements)))
-       )
-     ) combinations '()
-   )
+  (loop [combinationsLoop combinations newCombinationsLoop '()]
+    (if (empty? combinationsLoop)
+      newCombinationsLoop
+      (recur (rest combinationsLoop) (concat newCombinationsLoop (addElement (first combinationsLoop) elements)))
+      )
+    )
   )
 
 ; Функция нужна вместо цикла, чтобы проделать шаг n раз и довести комбинацию до длины n
