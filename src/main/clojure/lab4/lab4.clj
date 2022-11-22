@@ -84,8 +84,8 @@
   (list :inv expr))
 
 
-; Реализация функции приведения к ДНФ
-(defn to-dnf [expr dnf-rules]
+; Реализация функции приведения к ДНФ отдельно по шагу алгоритма (список правил)
+(defn to-dnf-by-step [expr dnf-rules]
   ((some #(if ((first %) expr) (second %) false) dnf-rules)
    expr))
 
@@ -110,7 +110,7 @@
     ))
 
 (defn define-expr [var val expr]
-  (to-dnf expr (define-rules var val)))
+  (to-dnf-by-step expr (define-rules var val)))
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@
      (fn [expr] expr)]))
 
 (defn step1-expr [expr]
-  (to-dnf expr step1-rules))
+  (to-dnf-by-step expr step1-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -163,11 +163,11 @@
      (fn [expr] expr)]))
 
 (defn step2-expr [expr]
-  (to-dnf expr step2-rules))
+  (to-dnf-by-step expr step2-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
-; Третий шаг алгоритма: убрать двойные отрицания и заменить !true и !false.
+; Третий шаг алгоритма: убрать двойные отрицания и заменить !true на false и !false на true.
 ;--------------------------------------------------------------------------------------------------
 (declare step3-expr)
 
@@ -193,7 +193,7 @@
      (fn [expr] expr)]))
 
 (defn step3-expr [expr]
-  (to-dnf expr step3-rules))
+  (to-dnf-by-step expr step3-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@
      (fn [expr] expr)]))
 
 (defn step4-expr [expr]
-  (to-dnf expr step4-rules))
+  (to-dnf-by-step expr step4-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@
      (fn [expr] expr)]))
 
 (defn step5-expr [expr]
-  (to-dnf expr step5-rules))
+  (to-dnf-by-step expr step5-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
@@ -291,29 +291,43 @@
      (fn [expr] expr)]))
 
 (defn step6-expr [expr]
-  (to-dnf expr step6-rules))
+  (to-dnf-by-step expr step6-rules))
 
 
 ;--------------------------------------------------------------------------------------------------
-(defn execute [var val expr]
-  (->> expr
-       step1-expr
-       step2-expr
-       step3-expr
-       step4-expr
-       (define-expr var val)
-       step3-expr
-       step5-expr
-       step6-expr))
+; Реализация функции приведения к ДНФ
+;--------------------------------------------------------------------------------------------------
+(defn to-dnf
+  ([expr]
+   (->> expr
+        step1-expr
+        step2-expr
+        step3-expr
+        step4-expr
+        step5-expr
+        step6-expr))
+  ([var val expr]
+   (->> expr
+        step1-expr
+        step2-expr
+        step3-expr
+        step4-expr
+        (define-expr var val)
+        step3-expr
+        step5-expr
+        step6-expr)))
 
-(defn -main []
-  (prn (execute (variable :A) const-true (variable :A)))
-  (prn (execute (variable :A) const-true (negation (negation (variable :A)))))
-  (prn (execute nil nil (negation (negation (variable :A)))))
-  (prn (execute (variable :A) const-false (disjunction (variable :A) (variable :B))))
-  (prn (execute (variable :A) const-true (conjunction (negation (variable :A)) (variable :B))))
-  (prn (execute (variable :A) const-false (disjunction (negation (variable :A)) (variable :B))))
-  (prn (execute (variable :A) const-true (negation (disjunction (negation (variable :A)) (variable :B)))))
-  (prn (execute (variable :A) const-true (negation (conjunction (negation (variable :A)) (variable :B)))))
-  (prn (execute (variable :A) const-false (implication (variable :A) (variable :B))))
-  )
+
+; Проверка
+(prn (to-dnf (variable :A) const-true (variable :A))) ; A = true, A
+(prn (to-dnf (variable :A) const-true (negation (negation (variable :A))))) ; A = true, !!A
+(prn (to-dnf (negation (negation (variable :A))))) ; !!A
+
+(prn (to-dnf (variable :A) const-false (disjunction (variable :A) (variable :B)))) ; A = false, A \/ B
+(prn (to-dnf (variable :A) const-true (conjunction (negation (variable :A)) (variable :B)))) ; A = true, A /\ B
+(prn (to-dnf (variable :B) const-true (negation (disjunction (negation (variable :A)) (variable :B))))) ; B = true, !(!A \/ B)
+(prn (to-dnf (variable :B) const-true (negation (conjunction (negation (variable :A)) (variable :B))))) ; B = true, !(!A /\ B)
+
+(prn (to-dnf (implication (variable :A) (variable :B)))) ; A -> B
+(prn (to-dnf (variable :A) const-false (implication (variable :A) (variable :B)))) ; A = false, A -> B
+(prn (to-dnf (variable :A) const-true (implication (negation (variable :A)) (variable :B)))) ; A = true, !A -> B
