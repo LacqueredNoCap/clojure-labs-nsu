@@ -47,12 +47,11 @@
 ; Тестовые функции
 (def line #(+ (* 2 %) 1))
 
-(def nonMemInt (integrate line 1))
-(def memInt (memoizeIntegrate line 1))
-
-(prn (time (nonMemInt 100)))
-(prn (time (memInt 100)))
-(prn (time (memInt 100)))
-(prn (time (memInt 101)))
-(prn (time (memInt 102)))
-(prn (time (memInt 99)))
+(let [nonMemInt (integrate line 1)
+      memInt (memoizeIntegrate line 1)]
+  (prn (time (nonMemInt 100)))
+  (prn (time (memInt 100)))
+  (prn (time (memInt 100)))
+  (prn (time (memInt 101)))
+  (prn (time (memInt 102)))
+  (prn (time (memInt 99))))
