@@ -29,7 +29,8 @@
 
 (let [integrateLine (integrate line 1)]
   (prn (time (integrateLine 10000)))
-  (prn (time (integrateLine 9999)))
+  (prn (time (integrateLine 10000)))
   (prn (time (integrateLine 10001)))
-  (prn (time (integrateLine 10002))))
+  (prn (time (integrateLine 10002)))
+  (prn (time (integrateLine 9999))))
 
