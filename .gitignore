@@ -1,5 +1,6 @@
 *.jar
 *.class
+.idea
 /lib/
 /classes/
 /target/
