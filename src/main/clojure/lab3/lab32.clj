@@ -6,7 +6,10 @@
 
 ; Разделение коллекции на части длины n
 (defn splitCollection [n coll]
-  (map (partial take n) (iterate (partial drop n) coll))
+  (if (empty? coll)
+    ()
+    (lazy-seq (cons (take n coll) (splitCollection n (drop n coll))))
+    )
   )
 
 ; Фильтрация элементов коллекции по частям определенного размера, каждая в отдельном потоке
@@ -20,7 +23,8 @@
                    )
               )
             )
-       (flatten)
+       (apply concat)
+       (apply concat)
       )
   )
 
@@ -31,13 +35,31 @@
   )
 
 
-; Проверка
+; Проверка на последовательности элементов (чисел)
+(def testSequence (iterate inc 0))
+
 (defn heavyPred [x]
   (Thread/sleep 10)
   (= 0 (mod x 17))
   )
 
-(time (prn (take 20 (filter heavyPred (iterate inc 0)))))
-(time (prn (take 20 (lazyParallelFilter heavyPred (iterate inc 0) 10 2))))
-(time (prn (take 20 (lazyParallelFilter heavyPred (iterate inc 0) 10 100))))
-(time (prn (take 20 (lazyParallelFilter heavyPred (iterate inc 0) 10))))
+(time (prn (take 20 (filter heavyPred testSequence))))
+(time (prn (take 20 (lazyParallelFilter heavyPred testSequence 10 2))))
+(time (prn (take 20 (lazyParallelFilter heavyPred testSequence 10))))
+(time (prn (take 20 (lazyParallelFilter heavyPred testSequence 10 100))))
+
+
+; Проверка на коллекции различных элементов
+(def collection
+  '((1 :A 1 "$3@") (2 "ABC" 5 :A 4) (1) (4 2) (3 ("4" 4) 5 6) () ((3 "4")) (4 5 ()) (3 ()) ((1 "qwe" (:A "55")) 2 1) () ((:A ("11" "22")) 3) (() ()))
+  )
+
+(defn heavyPredColl [x]
+  (Thread/sleep 100)
+  (even? (count x))
+  )
+
+(time (prn (filter heavyPredColl collection)))
+(time (prn (lazyParallelFilter heavyPredColl collection 2 2)))
+(time (prn (lazyParallelFilter heavyPredColl collection 2)))
+(time (prn (lazyParallelFilter heavyPredColl collection 2 100)))
