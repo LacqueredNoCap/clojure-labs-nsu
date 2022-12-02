@@ -22,7 +22,7 @@
        (map #(future (doall (filter pred %))))
        (doall)
        (map deref)
-       (flatten)
+       (mapcat #(concat %))
        )
   )
 
@@ -42,13 +42,31 @@
   ([pred coll threads] (parallelFilterThreads pred coll threads))
   )
 
-; Проверка
+; Проверка на последовательности элементов (чисел)
+(def testSequence (range 500))
+
 (defn heavyPred [x]
   (Thread/sleep 10)
   (= 0 (mod x 17))
   )
 
-(time (prn (filter heavyPred (range 500))))
-(time (prn (parallelFilter heavyPred (range 500) 2)))
-(time (prn (parallelFilter heavyPred (range 500))))
-(time (prn (parallelFilter heavyPred (range 500) 100)))
+(time (prn (filter heavyPred testSequence)))
+(time (prn (parallelFilter heavyPred testSequence 2)))
+(time (prn (parallelFilter heavyPred testSequence)))
+(time (prn (parallelFilter heavyPred testSequence 100)))
+
+
+; Проверка на коллекции различных элементов
+(def collection
+  '((1 :A 1 "$3@") (2 "ABC" 5 :A 4) (1) (4 2) (3 ("4" 4) 5 6) () ((3 "4")) (4 5 ()) (3 ()) ((1 "qwe" (:A "55")) 2 1) () ((:A ("11" "22")) 3) (() ()))
+  )
+
+(defn heavyPredColl [x]
+  (Thread/sleep 100)
+  (even? (count x))
+  )
+
+(time (prn (filter heavyPredColl collection)))
+(time (prn (parallelFilter heavyPredColl collection 2)))
+(time (prn (parallelFilter heavyPredColl collection)))
+(time (prn (parallelFilter heavyPredColl collection 100)))
